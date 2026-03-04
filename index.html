@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celler Connect | Michelin Standard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F4F4; /* Gris clar de fons per evitar el blanc pur */
+        }
+
+        .dark-card {
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+        }
+
+        .michelin-border {
+            border-color: #E5E5E5;
+        }
+
+        /* Animació suau per a les actualitzacions */
+        .fade-enter {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body x-data="cellerApp()">
+
+    <nav class="bg-[#1A1A1A] text-white p-6 sticky top-0 z-50 shadow-2xl">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex flex-col">
+                <span class="text-xs tracking-[0.3em] uppercase opacity-60">Sommelier Management</span>
+                <span class="text-xl font-light tracking-widest">CELLER<span class="font-semibold">CONNECT</span></span>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <label class="group cursor-pointer flex items-center gap-2 bg-white text-[#1A1A1A] px-5 py-2 rounded-full transition hover:bg-gray-200">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    <span class="text-xs font-bold uppercase tracking-tighter">Pujar Albarà</span>
+                    <input type="file" class="hidden" @change="processarAlbara($event)">
+                </label>
+                <div class="h-8 w-[1px] bg-gray-700"></div>
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 rounded-full border-2 border-[#1A1A1A] bg-gray-400 flex items-center justify-center text-[10px]">JS</div>
+                    <div class="w-8 h-8 rounded-full border-2 border-[#1A1A1A] bg-gray-600 flex items-center justify-center text-[10px]">MP</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6 md:p-12">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white p-6 border-l-4 border-[#1A1A1A] shadow-sm">
+                <p class="text-xs uppercase tracking-widest text-gray-500">Total Referències</p>
+                <p class="text-3xl font-light" x-text="vins.length"></p>
+            </div>
+            <div class="bg-white p-6 border-l-4 border-gray-300 shadow-sm">
+                <p class="text-xs uppercase tracking-widest text-gray-500">Ampolles en Nevera</p>
+                <p class="text-3xl font-light" x-text="totalNevera()"></p>
+            </div>
+            <div x-show="loading" class="flex items-center gap-3 text-gray-400 italic">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                <span class="text-sm text-gray-500">Analitzant albarà amb IA...</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <template x-for="(vi, index) in vins" :key="vi.id">
+                <div class="bg-white overflow-hidden shadow-sm border border-gray-100 transition hover:shadow-md fade-enter">
+                    <div class="p-6 border-b border-gray-50">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-semibold tracking-tight leading-tight" x-text="vi.nom"></h3>
+                            <span class="bg-gray-100 text-[10px] px-2 py-1 rounded font-bold" x-text="vi.anyada"></span>
+                        </div>
+                        <p class="text-xs text-gray-400 uppercase mt-1 tracking-widest" x-text="vi.regio"></p>
+                    </div>
+
+                    <div class="p-6 space-y-4 bg-[#FDFFDF]/10">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <i data-lucide="archive" class="w-4 h-4"></i>
+                                <span class="text-[10px] uppercase font-semibold">Celler Central</span>
+                            </div>
+                            <div class="flex items-center gap-4 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                                <button @click="updateStock(index, 'celler', -1)" class="hover:text-red-500 transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                <span class="w-8 text-center font-mono text-lg" x-text="vi.estocCeller"></span>
+                                <button @click="updateStock(index, 'celler', 1)" class="hover:text-green-600 transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[#1A1A1A]">
+                                <i data-lucide="thermometer-snowflake" class="w-4 h-4"></i>
+                                <span class="text-[10px] uppercase font-bold">Nevera Servei</span>
+                            </div>
+                            <div class="flex items-center gap-4 bg-[#1A1A1A] text-white px-3 py-1 rounded-full shadow-lg">
+                                <button @click="updateStock(index, 'nevera', -1)" class="hover:text-gray-400"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                <span class="w-8 text-center font-mono text-lg" x-text="vi.estocNevera"></span>
+                                <button @click="updateStock(index, 'nevera', 1)" class="hover:text-gray-400"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="traspassarANevera(index)" class="w-full py-3 bg-gray-50 text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 hover:bg-[#1A1A1A] hover:text-white transition-colors">
+                        Moure Celler &rarr; Nevera
+                    </button>
+                </div>
+            </template>
+        </div>
+    </main>
+
+    <script>
+        function cellerApp() {
+            return {
+                loading: false,
+                vins: [
+                    { id: 1, nom: "Dom Pérignon Brut", anyada: 2012, regio: "Champagne, FR", estocCeller: 18, estocNevera: 3 },
+                    { id: 2, nom: "Vega Sicilia Único", anyada: 2010, regio: "Ribera del Duero, ES", estocCeller: 6, estocNevera: 1 },
+                    { id: 3, nom: "Clos Mogador", anyada: 2019, regio: "Priorat, CAT", estocCeller: 24, estocNevera: 6 },
+                    { id: 4, nom: "Krug Grande Cuvée", anyada: "NV", regio: "Champagne, FR", estocCeller: 12, estocNevera: 2 }
+                ],
+                
+                updateStock(index, tipus, alcada) {
+                    if (tipus === 'celler') {
+                        this.vins[index].estocCeller = Math.max(0, this.vins[index].estocCeller + alcada);
+                    } else {
+                        this.vins[index].estocNevera = Math.max(0, this.vins[index].estocNevera + alcada);
+                    }
+                },
+
+                traspassarANevera(index) {
+                    if (this.vins[index].estocCeller > 0) {
+                        this.vins[index].estocCeller--;
+                        this.vins[index].estocNevera++;
+                    }
+                },
+
+                totalNevera() {
+                    return this.vins.reduce((acc, vi) => acc + vi.estocNevera, 0);
+                },
+
+                processarAlbara(event) {
+                    this.loading = true;
+                    // Simulació de processament OCR amb IA
+                    setTimeout(() => {
+                        this.loading = false;
+                        const nouVi = {
+                            id: Date.now(),
+                            nom: "Recaredo Turó d'en Mota",
+                            anyada: 2008,
+                            regio: "Penedès, CAT",
+                            estocCeller: 6,
+                            estocNevera: 0
+                        };
+                        this.vins.unshift(nouVi);
+                        lucide.createIcons(); // Refrescar icones per al nou element
+                        alert("Albarà detectat: S'han afegit 6 ampolles de Turó d'en Mota al celler.");
+                    }, 3000);
+                },
+
+                init() {
+                    lucide.createIcons();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
