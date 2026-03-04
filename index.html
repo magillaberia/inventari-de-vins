@@ -3,85 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELLER NOIR | Inventory Management</title>
+    <title>CELLER NOIR | Elite Inventory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600&display=swap');
+        
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #121212; /* Fons gris quasi negre */
+            background-color: #0A0A0A; 
             color: #E0E0E0;
+            -webkit-font-smoothing: antialiased;
         }
+
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Estil minimalista per inputs */
         input, select {
             background: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
+
+        input:focus {
+            border-bottom-color: #FFFFFF !important;
+            outline: none;
+        }
+
         [x-cloak] { display: none !important; }
+
+        /* Scrollbar elegant */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0A0A0A; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
     </style>
 </head>
-<body x-data="cellerManager()" x-init="init()">
+<body x-data="cellerApp()" x-init="init()">
 
-    <header class="p-8 border-b border-white/5 bg-[#121212]/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-6xl mx-auto flex justify-between items-end">
+    <header class="p-8 border-b border-white/5 sticky top-0 z-50 bg-[#0A0A0A]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-end">
             <div>
-                <h1 class="text-xs tracking-[0.5em] uppercase opacity-40 mb-1">Michelin Standard</h1>
-                <p class="text-2xl font-light tracking-tighter italic">Celler Noir</p>
+                <h1 class="text-[10px] tracking-[0.6em] uppercase opacity-40 mb-2 font-semibold">Sommelier Connect v1.0</h1>
+                <p class="text-3xl font-extralight tracking-tighter italic text-white">Celler<span class="font-bold not-italic">Noir</span></p>
             </div>
-            <div class="flex gap-3">
-                <button @click="showShare = true" class="p-2 hover:bg-white/5 rounded-full transition">
-                    <i data-lucide="share-2" class="w-5 h-5 opacity-60"></i>
+            
+            <div class="flex items-center gap-6">
+                <button @click="showShare = true" class="p-2 opacity-40 hover:opacity-100 transition duration-300">
+                    <i data-lucide="share" class="w-5 h-5"></i>
                 </button>
-                <button @click="showAdd = true" class="bg-white text-black px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">
+                <button @click="showAdd = true" class="bg-white text-black px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
                     Afegir Vi
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-8">
+    <main class="max-w-7xl mx-auto p-8 md:p-16">
         
         <template x-if="vins.length === 0">
-            <div class="flex flex-col items-center justify-center py-32 border-2 border-dashed border-white/5 rounded-3xl">
-                <div class="bg-white/5 p-6 rounded-full mb-6">
-                    <i data-lucide="database" class="w-10 h-10 opacity-20"></i>
+            <div class="flex flex-col items-center justify-center py-40 border border-white/5 rounded-[50px] bg-gradient-to-b from-white/[0.02] to-transparent">
+                <div class="p-8 bg-white/5 rounded-full mb-8">
+                    <i data-lucide="wine" class="w-12 h-12 opacity-10"></i>
                 </div>
-                <p class="text-sm uppercase tracking-widest opacity-30">Inventari buit</p>
-                <button @click="showAdd = true" class="mt-4 text-xs underline opacity-60 hover:opacity-100 transition">Crea la primera referència</button>
+                <h2 class="text-sm uppercase tracking-[0.5em] opacity-30 font-light">Celler en silenci</h2>
+                <button @click="showAdd = true" class="mt-6 text-[10px] uppercase font-bold tracking-widest border-b border-white/20 pb-1 hover:border-white transition-all">
+                    Començar inventari
+                </button>
             </div>
         </template>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             <template x-for="(vi, index) in vins" :key="vi.id">
-                <div class="glass-card rounded-2xl p-6 hover:border-white/20 transition-all duration-500 group">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="max-w-[70%]">
-                            <h3 class="text-lg font-light leading-tight group-hover:text-white transition" x-text="vi.nom"></h3>
-                            <p class="text-[10px] uppercase tracking-widest opacity-40 mt-1" x-text="vi.regio || 'Sense regió'"></p>
+                <div class="glass-card rounded-[40px] p-10 flex flex-col justify-between overflow-hidden relative">
+                    
+                    <div class="mb-10">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-2xl font-light leading-tight text-white italic" x-text="vi.nom"></h3>
+                            <span class="text-xs font-mono opacity-30 bg-white/5 px-3 py-1 rounded-full" x-text="vi.anyada || 'NV'"></span>
                         </div>
-                        <span class="font-mono text-sm opacity-30" x-text="vi.anyada || 'NV'"></span>
+                        <div class="flex gap-2 mt-4">
+                            <template x-if="vi.regio"><span class="text-[9px] uppercase tracking-widest opacity-40 border border-white/10 px-2 py-0.5 rounded" x-text="vi.regio"></span></template>
+                        </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl">
-                            <span class="text-[10px] uppercase tracking-widest opacity-50 font-semibold">Stock Celler</span>
-                            <div class="flex items-center gap-4">
-                                <button @click="updateStock(index, 'celler', -1)" class="opacity-30 hover:opacity-100 transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                                <span class="w-8 text-center font-mono text-xl" x-text="vi.estocCeller"></span>
-                                <button @click="updateStock(index, 'celler', 1)" class="opacity-30 hover:opacity-100 transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center bg-white/[0.03] p-5 rounded-3xl">
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] opacity-30 mb-1">Celler Central</p>
+                                <p class="text-3xl font-light" x-text="vi.estocCeller"></p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button @click="updateStock(index, 'celler', 1)" class="p-1 opacity-20 hover:opacity-100 transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                <button @click="updateStock(index, 'celler', -1)" class="p-1 opacity-20 hover:opacity-100 transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center border border-white/10 p-4 rounded-xl">
-                            <span class="text-[10px] uppercase tracking-widest opacity-80 font-bold">Nevera Servei</span>
-                            <div class="flex items-center gap-4">
-                                <button @click="updateStock(index, 'nevera', -1)" class="opacity-30 hover:opacity-100 transition"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
-                                <span class="w-8 text-center font-mono text-xl font-bold text-white" x-text="vi.estocNevera"></span>
-                                <button @click="updateStock(index, 'nevera', 1)" class="opacity-30 hover:opacity-100 transition"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+
+                        <div class="flex items-center justify-center gap-4 relative">
+                            <div class="absolute w-full h-[1px] bg-white/5 z-0"></div>
+                            <button @click="transfer(index, 'celler', 'nevera')" class="relative z-10 bg-[#121212] border border-white/10 px-5 py-2 rounded-full text-[9px] uppercase tracking-tighter flex items-center gap-2 hover:bg-white hover:text-black transition-all">
+                                <i data-lucide="arrow-down" class="w-3 h-3"></i> Cap a Nevera
+                            </button>
+                            <button @click="transfer(index, 'nevera', 'celler')" class="relative z-10 bg-[#121212] border border-white/10 px-5 py-2 rounded-full text-[9px] uppercase tracking-tighter flex items-center gap-2 hover:bg-white hover:text-black transition-all">
+                                <i data-lucide="arrow-up" class="w-3 h-3"></i> Cap a Celler
+                            </button>
+                        </div>
+
+                        <div class="flex justify-between items-center border border-white/10 p-5 rounded-3xl bg-white/[0.01]">
+                            <div>
+                                <p class="text-[9px] uppercase tracking-[0.2em] opacity-80 mb-1 text-white">Nevera Servei</p>
+                                <p class="text-3xl font-bold text-white" x-text="vi.estocNevera"></p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button @click="updateStock(index, 'nevera', 1)" class="p-1 opacity-40 hover:opacity-100 text-white transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                <button @click="updateStock(index, 'nevera', -1)" class="p-1 opacity-40 hover:opacity-100 text-white transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
                             </div>
                         </div>
                     </div>
@@ -90,75 +134,81 @@
         </div>
     </main>
 
-    <div x-show="showAdd" x-cloak class="fixed inset-0 z-50 flex justify-end">
-        <div @click="showAdd = false" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-lg bg-[#181818] h-full p-10 border-l border-white/10 shadow-2xl overflow-y-auto" x-transition:enter="transition transform duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0">
-            <h2 class="text-3xl font-light mb-10 tracking-tighter">Nova Referència</h2>
-            
-            <div class="space-y-8">
+    <div x-show="showAdd" x-cloak class="fixed inset-0 z-[60] flex justify-end">
+        <div @click="showAdd = false" class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity"></div>
+        <div class="relative w-full max-w-xl bg-[#0F0F0F] h-full p-16 border-l border-white/10 shadow-2xl overflow-y-auto" x-transition:enter="transition transform duration-500" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0">
+            <div class="flex justify-between items-center mb-16">
+                <h2 class="text-4xl font-light tracking-tighter italic text-white">Nova Referència</h2>
+                <button @click="showAdd = false" class="opacity-20 hover:opacity-100"><i data-lucide="x" class="w-8 h-8"></i></button>
+            </div>
+
+            <div class="space-y-12">
                 <div>
-                    <label class="text-[10px] uppercase tracking-[0.2em] opacity-30 block mb-2">Nom del vi</label>
-                    <input type="text" x-model="form.nom" class="w-full border-b border-white/10 pb-2 outline-none focus:border-white transition italic text-lg">
-                </div>
-                <div class="grid grid-cols-2 gap-8">
-                    <div>
-                        <label class="text-[10px] uppercase tracking-[0.2em] opacity-30 block mb-2">Anyada</label>
-                        <input type="text" x-model="form.anyada" placeholder="2020" class="w-full border-b border-white/10 pb-2 outline-none focus:border-white transition">
-                    </div>
-                    <div>
-                        <label class="text-[10px] uppercase tracking-[0.2em] opacity-30 block mb-2">D.O. / Regió</label>
-                        <input type="text" x-model="form.regio" class="w-full border-b border-white/10 pb-2 outline-none focus:border-white transition">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase tracking-[0.2em] opacity-30 block mb-2">Detalls Opcionals (Raïm, Productor...)</label>
-                    <input type="text" x-model="form.detalls" class="w-full border-b border-white/10 pb-2 outline-none focus:border-white transition">
+                    <label class="text-[10px] uppercase tracking-[0.3em] opacity-30 block mb-4">Nom de l'ampolla *</label>
+                    <input type="text" x-model="form.nom" placeholder="Ex: Châteauneuf-du-Pape" class="w-full text-2xl font-light py-2">
                 </div>
                 
-                <div class="pt-10">
-                    <button @click="addVi()" class="w-full bg-white text-black py-4 rounded-xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-gray-200 transition">
-                        Confirmar Entrada
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="showShare" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-6">
-        <div @click="showShare = false" class="absolute inset-0 bg-black/80"></div>
-        <div class="relative w-full max-w-md bg-[#1c1c1c] rounded-3xl p-8 border border-white/10 shadow-2xl">
-            <h3 class="text-xl font-light mb-6 tracking-tight italic">Gestionar Col·laboradors</h3>
-            
-            <div class="space-y-4 mb-8">
-                <div class="flex gap-2">
-                    <input type="email" x-model="shareEmail" placeholder="correu@restaurant.com" class="flex-1 border border-white/10 rounded-lg px-4 py-2 text-sm">
-                    <select x-model="shareRole" class="border border-white/10 rounded-lg text-[10px] uppercase bg-transparent px-2">
-                        <option value="editor" class="bg-[#1c1c1c]">Editor</option>
-                        <option value="lector" class="bg-[#1c1c1c]">Lector</option>
-                    </select>
-                </div>
-                <button @click="addUser()" class="w-full bg-white/5 py-2 rounded-lg text-[10px] uppercase tracking-widest font-bold hover:bg-white/10 transition">Convidar</button>
-            </div>
-
-            <div class="space-y-3">
-                <template x-for="(user, i) in team" :key="i">
-                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                        <span class="text-xs opacity-60" x-text="user.email"></span>
-                        <span class="text-[8px] uppercase tracking-tighter px-2 py-1 rounded bg-white/10" x-text="user.role"></span>
+                <div class="grid grid-cols-2 gap-12">
+                    <div>
+                        <label class="text-[10px] uppercase tracking-[0.3em] opacity-30 block mb-4">Anyada</label>
+                        <input type="text" x-model="form.anyada" placeholder="2018 o NV" class="w-full py-2">
                     </div>
-                </template>
-            </div>
+                    <div>
+                        <label class="text-[10px] uppercase tracking-[0.3em] opacity-30 block mb-4">Regió / D.O.</label>
+                        <input type="text" x-model="form.regio" placeholder="Borgonya" class="w-full py-2">
+                    </div>
+                </div>
 
-            <div class="mt-8 pt-6 border-t border-white/5">
-                <button @click="copyLink()" class="flex items-center gap-2 text-[10px] uppercase tracking-widest opacity-40 hover:opacity-100 transition mx-auto">
-                    <i data-lucide="copy" class="w-3 h-3"></i> Copiar enllaç d'accés
+                <div class="bg-white/[0.02] p-8 rounded-[30px] border border-white/5 space-y-8">
+                    <p class="text-[10px] uppercase tracking-widest opacity-40 font-bold border-b border-white/5 pb-4">Estoc Inicial</p>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <label class="text-[10px] uppercase opacity-30 block mb-2">Unitats Celler</label>
+                            <input type="number" x-model="form.estocCeller" class="w-full py-2 text-xl font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase opacity-30 block mb-2">Unitats Nevera</label>
+                            <input type="number" x-model="form.estocNevera" class="w-full py-2 text-xl font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="addVi()" class="w-full bg-white text-black py-6 rounded-full font-bold uppercase text-xs tracking-[0.5em] hover:bg-gray-200 transition-all shadow-xl shadow-white/5">
+                    Registrar referència
                 </button>
             </div>
         </div>
     </div>
 
+    <div x-show="showShare" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-6">
+        <div @click="showShare = false" class="absolute inset-0 bg-black/95"></div>
+        <div class="relative w-full max-w-lg bg-[#141414] rounded-[50px] p-12 border border-white/10 shadow-2xl">
+            <h3 class="text-2xl font-light mb-10 italic text-white">Gestió de l'equip</h3>
+            
+            <div class="space-y-6 mb-12">
+                <input type="email" x-model="shareEmail" placeholder="correu@restaurant.com" class="w-full py-4 text-sm">
+                <div class="flex gap-4">
+                    <select x-model="shareRole" class="flex-1 py-4 text-[10px] uppercase font-bold tracking-widest cursor-pointer border-b border-white/10">
+                        <option value="editor" class="bg-[#141414]">Editor (Modifica)</option>
+                        <option value="lector" class="bg-[#141414]">Lector (Només veu)</option>
+                    </select>
+                    <button @click="addUser()" class="bg-white/5 hover:bg-white hover:text-black transition-all px-10 rounded-full text-[10px] font-bold uppercase tracking-widest">Afegir</button>
+                </div>
+            </div>
+
+            <div class="space-y-4 max-h-48 overflow-y-auto pr-4">
+                <template x-for="(user, i) in team" :key="i">
+                    <div class="flex justify-between items-center p-5 bg-white/[0.02] rounded-3xl border border-white/5">
+                        <span class="text-xs opacity-40 font-mono" x-text="user.email"></span>
+                        <span class="text-[8px] uppercase tracking-widest px-3 py-1 rounded-full border border-white/20 font-bold" x-text="user.role"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function cellerManager() {
+        function cellerApp() {
             return {
                 showAdd: false,
                 showShare: false,
@@ -166,7 +216,7 @@
                 team: [],
                 shareEmail: '',
                 shareRole: 'editor',
-                form: { nom: '', anyada: '', regio: '', detalls: '', estocCeller: 0, estocNevera: 0 },
+                form: { nom: '', anyada: '', regio: '', estocCeller: 0, estocNevera: 0 },
 
                 init() {
                     lucide.createIcons();
@@ -176,13 +226,15 @@
                     if (!this.form.nom) return;
                     this.vins.push({
                         id: Date.now(),
-                        ...this.form,
-                        estocCeller: 0,
-                        estocNevera: 0
+                        nom: this.form.nom,
+                        anyada: this.form.anyada,
+                        regio: this.form.regio,
+                        estocCeller: parseInt(this.form.estocCeller) || 0,
+                        estocNevera: parseInt(this.form.estocNevera) || 0
                     });
-                    this.form = { nom: '', anyada: '', regio: '', detalls: '', estocCeller: 0, estocNevera: 0 };
+                    this.form = { nom: '', anyada: '', regio: '', estocCeller: 0, estocNevera: 0 };
                     this.showAdd = false;
-                    this.refreshIcons();
+                    this.refresh();
                 },
 
                 updateStock(index, type, val) {
@@ -193,18 +245,24 @@
                     }
                 },
 
+                transfer(index, from, to) {
+                    const fromKey = from === 'celler' ? 'estocCeller' : 'estocNevera';
+                    const toKey = to === 'celler' ? 'estocCeller' : 'estocNevera';
+                    
+                    if (this.vins[index][fromKey] > 0) {
+                        this.vins[index][fromKey]--;
+                        this.vins[index][toKey]++;
+                    }
+                },
+
                 addUser() {
                     if (!this.shareEmail.includes('@')) return;
-                    this.team.push({ email: this.shareEmail, role: this.shareRole });
+                    this.team.unshift({ email: this.shareEmail, role: this.shareRole });
                     this.shareEmail = '';
+                    this.refresh();
                 },
 
-                copyLink() {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Enllaç de compartició copiat.");
-                },
-
-                refreshIcons() {
+                refresh() {
                     setTimeout(() => lucide.createIcons(), 50);
                 }
             }
